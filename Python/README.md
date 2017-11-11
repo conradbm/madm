@@ -10,7 +10,7 @@
 <li> -s sensitivity analysis
      <ul> 
           <li>-e exaustive, go through weights from 0 to 100 for each variable and flag when ranks change (dataset is excel ready for plots or plots included in a flag as a later feature) </li> 
-          <li>-ws weight specific, there will be given a variable and its range, so V1 0 100 would look at the weight of V1 from 0 to 100 (by integers)</li>
+          <li>-ws weight specific, there will be given a variable and its range, so V1 0 100 would look at the weight of V1 from 0 to 100 (by integers). This version assumes an equal split among the other variables.</li>
      </ul>
 </li>
 
