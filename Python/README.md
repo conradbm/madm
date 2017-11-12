@@ -5,7 +5,7 @@
 <ul>
 <li> <> Indicates optional </li>
 <li> -f filename </li>
-<li> -a algorithm (topsis or saw) (default topsis)</li>
+<li> -a algorithm (topsis, saw, electre, or promethee) (default topsis)</li>
 <li> -v verbose (print whats happening)</li>
 <li> -s sensitivity analysis
      <ul> 
