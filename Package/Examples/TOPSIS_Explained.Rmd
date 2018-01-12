@@ -1,0 +1,115 @@
+---
+title: "Multi Attribute Decision Making in R"
+output: html_notebook
+---
+
+
+
+
+# Read in data
+```{r}
+DM <- data.frame(cost=as.numeric(runif(5,100, 200)),                                   #cost attribute, 100-200
+                 productivity=as.numeric(abs(rnorm(5))),                               #benefit attribute, abs(normalDist)
+                 location=as.numeric(floor(runif(5, 0, 5))),                           #benefit attribute, 0-5
+                 row.names = sprintf("alternative_%d",seq(1:5))
+      )
+w <- data.frame(t(matrix(c(0.45, 0.35, 0.2))))
+names(w) <- names(DM)
+DM <- rbind(w,DM)
+row.names(DM)[1] = "weights"
+DM
+```
+
+# Weight Vector Normalize
+```{r}
+
+weightVectorNormalize <- function(DM){
+  VNDM <- DM
+  for (i in 1:ncol(DM)){
+  
+      denom <- sqrt(sum(DM[,i]^2))
+      
+      for(j in 2:length(DM[,i])){
+        
+        VNDM[j,i] <- DM[1,i]*((DM[j,i])/denom)
+      }
+  }
+  return(VNDM)
+}
+
+VNDM <- weightVectorNormalize(DM)
+VNDM
+```
+
+# Capture Positive and Negative Ideal
+```{r}
+
+PNI <- function(DM){
+  s <- data.frame(row.names=FALSE)
+  for (name in names(DM)){
+      p<-0
+      n<-0
+      if(grepl("cost", name)){
+         # min is better
+         p <- min(DM[2:nrow(DM),name])         #remember to ignore the weight row
+         n <- max(DM[2:nrow(DM),name])         #remember to ignore the weight row
+         #cat(name, "neg:",n,"\tpos:",p,"\n")
+      }
+      else{
+         # max is better
+         p <- max(DM[2:nrow(DM),name])         #remember to ignore the weight row
+         n <- min(DM[2:nrow(DM),name])         #remember to ignore the weight row
+         #cat(name, "neg:",n,"\tpos:",p,"\n")
+      }
+      
+      s <- rbind(s,t(data.frame(c(name, p, n))))
+  }
+  
+  # Structure labeling
+  names(s) <- c("Name", "PositiveIdeal", "NegativeIdeal")
+  row.names(s) <- names(DM)
+  
+  # Structure & Convert data
+  d <- data.frame(t(s[,2:ncol(s)]))
+  d2 <- data.frame(apply(d, 2, as.numeric))
+  
+  # Re-structure labeling
+  names(d2) <- names(d)
+  row.names(d2) <- row.names(d)
+  
+  return(d2)
+}
+ideals <- PNI(VNDM)
+ideals
+```
+
+# Get S Vectors (Distances of each alternative to the PNI)
+```{r}
+distanceFromIdeals <- function(ideals, DM){
+  SPlus <- c()
+  SMinus <- c()
+  for(i in 2:nrow(DM)){
+    SPlus[i] <- sqrt(sum((DM[i,] - ideals[1,])^2))
+    SMinus[i] <- sqrt(sum((DM[i,] - ideals[2,])^2))
+  }
+  return (data.frame(SPlus, SMinus))
+}
+
+S <- distanceFromIdeals(ideals, VNDM)
+row.names(S) <- row.names(VNDM)
+S
+
+```
+
+# Calculate the C*, distance of how far this alternatives distance was from the 
+# negative ideal, and how close it was to the positive ideal
+# C* = SMinus/ (SMinus - SPlus)
+
+```{r}
+CStar <- data.frame(S[,2] / (S[,1]-S[,2]))
+names(CStar) <- "C*"
+row.names(CStar) <- row.names(VNDM)
+CStar
+```
+
+# In conclusion, we would select the first alternative, because he has the best score
