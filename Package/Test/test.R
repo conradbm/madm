@@ -35,7 +35,8 @@ dm <- read.data.matrix("Data/maut_validate.csv", header=TRUE)
 #mautRes
 
 FinalDB <- sensitivity(data=dm, verbose=FALSE)
-
+fdb <- sensitivity(data=dm, algs=c("MAUT", "ELECTRE"), algsParams=c(list(),list()), verbose=TRUE)
+fdb <- sensitivity(data=dm, attr=c("x1","x2"),algs=c("TOPSIS","MAUT", "ELECTRE"), algsParams=c(list(normalize="vector"),list(scales=c("linear","logarithmic","exponential")),list(preferences=c(list(p1=2,q1=4), list(p2=50, q2=100)))), verbose=TRUE)
 write.csv(FinalDB,"test.csv")
 
 
