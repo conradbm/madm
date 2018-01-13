@@ -1,11 +1,27 @@
 # https://hilaryparker.com/2014/04/29/writing-an-r-package-from-scratch/
 
-
 getwd()
 setwd("/Users/bmc/Desktop/madm/Package")
 
 source("Functions/FileIO.R")
 source("Functions/Algorithms.R")
+source("Functions/Sensitivity.R")
+
+###
+### Example data if needed.
+###
+#DM <- data.frame(cost=as.numeric(runif(5,100, 200)),                                   #cost attribute, 100-200
+#             productivity=as.numeric(abs(rnorm(5))),                               #benefit attribute, abs(normalDist)
+#             location=as.numeric(floor(runif(5, 0, 5))),                           #benefit attribute, 0-5
+#             row.names = sprintf("alternative_%d",seq(1:5))
+#       )
+#w <- data.frame(t(matrix(c(0.45, 0.35, 0.2))))
+#names(w) <- names(DM)
+#DM <- rbind(w,DM)
+#row.names(DM)[1] = "weights"
+#DM
+###
+###
 
 #dm <- read.data.matrix("Data/topsis_validate.csv", header=TRUE)
 #topsisRes <-TOPSIS(dm)
@@ -18,9 +34,7 @@ dm <- read.data.matrix("Data/maut_validate.csv", header=TRUE)
 #mautRes$Results
 #mautRes
 
-
-
-FinalDB <- sensitivity(dm, verbose=FALSE)
+FinalDB <- sensitivity(data=dm, verbose=FALSE)
 
 write.csv(FinalDB,"test.csv")
 

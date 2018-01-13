@@ -1,7 +1,5 @@
 # FileIO.R
 
-
-
 #' A function to transform a standard csv data matrix into the correct row column format.
 #'
 #' This function allows you to import a csv into the correct data.matrix format for the madm package
@@ -12,10 +10,6 @@
 #' @return data.matrix format of a data.frame
 #' @examples
 #' read.data.matrix("C:/Desktop")
-#' 
-#' 
-#' 
-#' 
 #' 
 #' Convert a standard import of:
 #'
