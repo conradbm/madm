@@ -1,12 +1,24 @@
 # https://hilaryparker.com/2014/04/29/writing-an-r-package-from-scratch/
 
+# 1. make the algParams as flexibile as possible.
+# 2. fix sensitivity bug on border cases
+
 getwd()
 setwd("/Users/bmc/Desktop/madm/Package")
 
 source("Functions/FileIO.R")
 source("Functions/Algorithms.R")
 source("Functions/Sensitivity.R")
+dm <- read.data.matrix("Data/maut_validate.csv", header=TRUE)
 
+FinalDB <- sensitivity(data=dm, 
+                       step=0.1, #optional
+                       algs=c("TOPSIS", "MAUT"), #optional
+                       algParams=list(MAUT=list(scales=c("linear","linear","exponential"))),#optional
+                       verbose=TRUE)#optional
+FinalDB
+summary(FinalDB)
+write.csv(FinalDB, "test.csv")
 ###
 ### Example data if needed.
 ###
@@ -33,10 +45,11 @@ dm <- read.data.matrix("Data/maut_validate.csv", header=TRUE)
 #mautRes <- MAUT(dm)
 #mautRes$Results
 #mautRes
-
-FinalDB <- sensitivity(data=dm, verbose=FALSE)
-fdb <- sensitivity(data=dm, algs=c("MAUT", "ELECTRE"), algsParams=c(list(),list()), verbose=TRUE)
-fdb <- sensitivity(data=dm, attr=c("x1","x2"),algs=c("TOPSIS","MAUT", "ELECTRE"), algsParams=c(list(normalize="vector"),list(scales=c("linear","logarithmic","exponential")),list(preferences=c(list(p1=2,q1=4), list(p2=50, q2=100)))), verbose=TRUE)
-write.csv(FinalDB,"test.csv")
+dm <- read.data.matrix("Data/maut_validate.csv", header=TRUE)
+FinalDB <- sensitivity(data=dm, verbose=TRUE)
+FinalDB
+#fdb <- sensitivity(data=dm, algs=c("MAUT", "ELECTRE"), algsParams=c(list(),list()), verbose=TRUE)
+#fdb <- sensitivity(data=dm, attr=c("x1","x2"),algs=c("TOPSIS","MAUT"), algsParams=c(list(),list(scales=c("linear","logarithmic","exponential"))),verbose=TRUE)
+#write.csv(FinalDB,"test.csv")
 
 

@@ -19,7 +19,23 @@
 #'
 #' 
 
-TOPSIS <- function(DM){
+TOPSIS <- function(data=DM, algParams=c(), verbose=FALSE){
+  
+  DM <- data
+  
+  #print(algParams)
+  #Sys.sleep(100000)
+  
+  if(verbose) cat("Starting the TOPSIS algorithm.\n")
+  
+  
+  # Sanitize parameters from sensitivity function
+  if(length(algParams) != 0){
+    if("TOPSIS" %in% names(algParams)){
+      # ... Detemrine if specific parameter exists ...
+      # ... Set specific parameter here ...
+    }
+  }
   
   weightVectorNormalize <- function(DM){
     VNDM <- DM
@@ -86,6 +102,8 @@ TOPSIS <- function(DM){
     return (data.frame(SPlus, SMinus))
   }
   
+  if(verbose) cat("Finished the TOPSIS algorithm.\n")
+  
   S <- distanceFromIdeals(ideals, VNDM)
   row.names(S) <- row.names(VNDM)
   #S
@@ -117,6 +135,8 @@ TOPSIS <- function(DM){
 #' @author Blake Conrad
 #' @
 #' @param read.data.matrix(data.frame), c()
+#' @param scales, default to c(), if scales supplied and supplied correctly, each attribute will get the appropriate scaling measure (linear, exponential, or logarithmic). Defaults to all linear scales if none supplied.
+#' @param algParams, default to c(), when the sensitivity function calls this function the user can pass specific algorithm parameters. These have a sanitiy check and then append in the correct parameter if correctly supplied. 
 #' @keywords data.frame, ranking
 #' @return list
 #' @examples
@@ -139,11 +159,42 @@ TOPSIS <- function(DM){
 #'
 #' 
 
-MAUT <- function(DM, scales=c()){
+MAUT <- function(data=DM, algParams=c(), scales=c(), verbose=FALSE){
+  
+  DM <- data
+  
+  #print(algParams)
+  #print(typeof(algParams))
+  #print("scales" %in% algParams$MAUT)
+  #Sys.sleep(1)
+  
+  if(verbose) cat("Starting the MAUT algorithm.\n")
+  
+  # Sanitize parameters from the sensitivity function
+  if(length(algParams) != 0){
+    if("MAUT" %in% names(algParams)){
+      # ... Detemrine if specific parameter exists ...
+      if("scales" %in% names(algParams$MAUT)){
+        # ... Set specific parameter here ...
+        if(verbose) cat("Setting scales to: ",algParams$MAUT$scales,".\n")
+        scales <- algParams$MAUT$scales
+      }
+      else{
+        if(verbose) cat("Invalid scales structure.\n")
+      }
+    }
+    else{
+      if(verbose) cat("Invalid method structure.\n")
+    }
+  }
+  else{
+    if(verbose) cat("No algParams provided.\n")
+  }
+  
   
   # Scales not supplied sufficiently
   if(length(scales)==0 || length(scales) < ncol(DM)){
-      cat("No scales were provided or provided incompletely. Setting default scaling to linear.\n")
+      if(verbose) cat("No scales were provided or provided incompletely. Setting default scaling to linear.\n")
       scales = rep("linear", ncol(DM))
   }
 
@@ -179,24 +230,30 @@ MAUT <- function(DM, scales=c()){
         # Already scaled, no action needed.
         #
         #
+        #cat("linear\t")
       }
       else if(scales[i] == "exponential"){
         # Handle exponential case
         # exp(val^2)+1/1.7889 -- risky attribute is more benefitial
         
         DM[j,i] <- ((exp(DM[j,i]^2)-1)/1.718282)
+        #cat("exp\t")
       }
       else if (scales[i] == "logarithmic"){
         # Handle logarithmic case
         # log(val) -- risk averse is more benefitial
         DM[j,i] <- log(DM[j,i])
+        #cat("log\t")
       }
       else{
-        cat("Incorrect cost/benefit function specified.\nPlease specify the scales parameter to this function per the documentation.\n")
+        cat("Incorrect function. Defaulting to linear.\n")
       }
     }
     
   }
+  
+  if(verbose) cat("Finished the MAUT algorithm.\n")
+  
   normalizedDM <- DM
   # SAW -- Sum each column based on its unique 'Utility' to provide a final utility score.
   # sum each column after scaling each by their columns weights -- sumproduct
@@ -218,6 +275,7 @@ MAUT <- function(DM, scales=c()){
   
   retList <- list(retDf, DM, scales)
   names(retList) <- c("Results","DM","scales")
+  
   return(retList)
 }
 
