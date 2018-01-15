@@ -74,11 +74,10 @@ sensitivity <- function(data=c(),
     cat("Default splits assumed.\n")
     FinalDB <- default_sensitivity(DM, DB, algs, algParams, step, verbose)
     
-    # Remove all rows that went below step
-    #FinalDB <- FinalDB[(FinalDB[,1:ncol(dm)] > step),]
+    # Data scrubbing -- remove all invalid rows
+    trimmedDB <- subset(FinalDB, (FinalDB[,c(1:ncol(DM))] > step & FinalDB[,c(1:ncol(DM))] < (1-step)))
+    FinalDB <- trimmedDB[complete.cases(trimmedDB),]
     
-    # Remove all rows that went above (1-step)
-    #FinalDB <- FinalDB[(FinalDB[,1:ncol(dm)] < (1-step)),]
   }
   else{
     cat("Custom splits were decided at: ", splitPercentages, "\n")
@@ -141,7 +140,7 @@ default_sensitivity <- function(DM,
       # Original run on standard weights, i.e., there will be 1 duplicate for each attribute
       DB <- updateDB(DMCopy, DB, alg, algParams, attr_i, iterid, verbose)
       
-      while(DMCopy["weight",attr_i] > step){
+      while(DMCopy["weight",attr_i] > 0){
         
         if(verbose) cat(DMCopy["weight",attr_i],"\t")
         
@@ -169,7 +168,7 @@ default_sensitivity <- function(DM,
       if(verbose) cat("*** Analyzing from ", DMCopy["weight", attr_i], " to ",(1-step),".*** \n")
       if(verbose) cat("Current weight...\t")
       
-      while(DMCopy["weight",attr_i] < (1-step)){
+      while(DMCopy["weight",attr_i] < 1){
         
         if(verbose) cat(DMCopy["weight",attr_i],"\t")
         

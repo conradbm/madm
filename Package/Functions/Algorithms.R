@@ -26,7 +26,7 @@ TOPSIS <- function(data=DM, algParams=c(), verbose=FALSE){
   #print(algParams)
   #Sys.sleep(100000)
   
-  if(verbose) cat("Starting the TOPSIS algorithm.\n")
+  #if(verbose) cat("Starting the TOPSIS algorithm.\n")
   
   
   # Sanitize parameters from sensitivity function
@@ -102,7 +102,7 @@ TOPSIS <- function(data=DM, algParams=c(), verbose=FALSE){
     return (data.frame(SPlus, SMinus))
   }
   
-  if(verbose) cat("Finished the TOPSIS algorithm.\n")
+  #if(verbose) cat("Finished the TOPSIS algorithm.\n")
   
   S <- distanceFromIdeals(ideals, VNDM)
   row.names(S) <- row.names(VNDM)
@@ -168,7 +168,7 @@ MAUT <- function(data=DM, algParams=c(), scales=c(), verbose=FALSE){
   #print("scales" %in% algParams$MAUT)
   #Sys.sleep(1)
   
-  if(verbose) cat("Starting the MAUT algorithm.\n")
+  #if(verbose) cat("Starting the MAUT algorithm.\n")
   
   # Sanitize parameters from the sensitivity function
   if(length(algParams) != 0){
@@ -252,7 +252,7 @@ MAUT <- function(data=DM, algParams=c(), scales=c(), verbose=FALSE){
     
   }
   
-  if(verbose) cat("Finished the MAUT algorithm.\n")
+  #if(verbose) cat("Finished the MAUT algorithm.\n")
   
   normalizedDM <- DM
   # SAW -- Sum each column based on its unique 'Utility' to provide a final utility score.

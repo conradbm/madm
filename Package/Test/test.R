@@ -11,14 +11,30 @@ source("Functions/Algorithms.R")
 source("Functions/Sensitivity.R")
 dm <- read.data.matrix("Data/maut_validate.csv", header=TRUE)
 
+names(dm)
 FinalDB <- sensitivity(data=dm, 
                        step=0.1, #optional
                        algs=c("TOPSIS", "MAUT"), #optional
-                       algParams=list(MAUT=list(scales=c("linear","linear","exponential"))),#optional
-                       verbose=TRUE)#optional
-FinalDB
+                       algParams=list(MAUT=list(scales=c("linear",
+                                                         "linear",
+                                                         "exponential"))),#optional
+                       verbose=FALSE)#optional
+nrow(FinalDB)
+step=0.1
+
+trimmedDB <- subset(FinalDB, (FinalDB[,c(1:ncol(dm))] > step & FinalDB[,c(1:ncol(dm))] < (1-step)))
+trimmedDB <- trimmedDB[complete.cases(trimmedDB),]
+
+#errors in not touching step, but touching (1-step).
+#errors in some rows containing negative numbers.
+
+nrow(trimmedDB)
 summary(FinalDB)
-write.csv(FinalDB, "test.csv")
+nrow(FinalDB)
+summary(trimmedDB)
+write.csv(FinalDB, "final.csv")
+write.csv(trimmedDB, "trimmed.csv")
+FinalDB[89:92,c(1,2,3)] < 0.01
 ###
 ### Example data if needed.
 ###
