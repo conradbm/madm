@@ -74,10 +74,11 @@ sensitivity <- function(data=c(),
     cat("Default splits assumed.\n")
     FinalDB <- default_sensitivity(DM, DB, algs, algParams, step, verbose)
     
+    #cat("Trimming down data.\n")
     # Data scrubbing -- remove all invalid rows
-    trimmedDB <- subset(FinalDB, (FinalDB[,c(1:ncol(DM))] > step & FinalDB[,c(1:ncol(DM))] < (1-step)))
-    FinalDB <- trimmedDB[complete.cases(trimmedDB),]
-    
+    #trimmedDB <- subset(FinalDB, (FinalDB[,c(1:ncol(DM))] > step & FinalDB[,c(1:ncol(DM))] < (1-step)))
+    #FinalDB <- trimmedDB[complete.cases(trimmedDB),]
+    #cat("Trimming finished.\n")
   }
   else{
     cat("Custom splits were decided at: ", splitPercentages, "\n")
@@ -115,15 +116,17 @@ default_sensitivity <- function(DM,
   if(length(algs)==0) algs <- c("TOPSIS", "MAUT")
   
   # Constants for DB & calculations
-  iterid <-1
-  algid  <-1
-  N      <- length(names(DM))
+  iterid     <-1
+  algid      <-1
+  N          <- length(names(DM))
   split_step <- step/(N-1)
-  DB     <- data.frame() # Database to store our results
+  minStep    <- step
+  maxStep    <- (1-step)
+  DB         <- data.frame() # Database to store our results
   
   # Keep a fresh copy of the DM from points: attrVal->step
   DMCopy <- DM
-  
+
   for(alg in algs){
     
     if(verbose) cat("Running method: ", alg, ".\n")
@@ -137,22 +140,35 @@ default_sensitivity <- function(DM,
       if(verbose) cat("*** Analyzing from ", DMCopy["weight", attr_i], " to ",step,".*** \n")
       if(verbose) cat("Current weight...\t")
       
-      # Original run on standard weights, i.e., there will be 1 duplicate for each attribute
+      # Initial run w/o inc/dec
       DB <- updateDB(DMCopy, DB, alg, algParams, attr_i, iterid, verbose)
-      
-      while(DMCopy["weight",attr_i] > 0){
+      iterid<-iterid+1
+
+      repeat{
         
         if(verbose) cat(DMCopy["weight",attr_i],"\t")
         
         # Update the DM
         DMCopy <- decreaseAttribute(DMCopy, attr_i, step, split_step)
+
+        if(verbose) cat("attribute: ", attr_i,"\tvalue: ",DMCopy["weight",attr_i],"\ttype: ",class(DMCopy["weight",attr_i]),"\n")
+        if(verbose) cat("attribute: ", "minStep","\tvalue: ", minStep, "\ttype: ",class(minStep),"\n")
         
-        # Store the results of alg
-        DB <- updateDB(DMCopy, DB, alg, algParams, attr_i, iterid, verbose)
-       
-        
-        # update iter
-        iterid<-iterid+1
+        if(DMCopy["weight",attr_i] <= minStep){
+          #cat("Skipping..\t")
+          #cat("\n")
+          #Sys.sleep(5)
+          break
+        }else{
+          #cat("Storing..\t")
+          #cat("\n")
+          #Sys.sleep(1)
+          # Store the results of alg
+          DB <- updateDB(DMCopy, DB, alg, algParams, attr_i, iterid, verbose)
+          
+          # update iter
+          iterid<-iterid+1
+        }
       } #endwhile
       
       # For debugging
@@ -160,28 +176,37 @@ default_sensitivity <- function(DM,
       
       # Keep a fresh copy of the DM from points: attrVal->(1-step)
       DMCopy <- DM
-      
-      # If next step is valid, while will engage
-      DMCopy <- increaseAttribute(DMCopy, attr_i, step, split_step)
-      
+
       # For debugging
       if(verbose) cat("*** Analyzing from ", DMCopy["weight", attr_i], " to ",(1-step),".*** \n")
       if(verbose) cat("Current weight...\t")
       
-      while(DMCopy["weight",attr_i] < 1){
+      repeat{
         
         if(verbose) cat(DMCopy["weight",attr_i],"\t")
         
-        # Store the results of alg
-        DB <- updateDB(DMCopy, DB, alg, algParams, attr_i, iterid, verbose)
-        
         # If next step is valid, while will engage
         DMCopy <- increaseAttribute(DMCopy, attr_i, step, split_step)
+
+        if(verbose) cat("attribute: ", attr_i,"\tvalue: ",DMCopy["weight",attr_i],"\ttype: ",class(DMCopy["weight",attr_i]),"\n")
+        if(verbose) cat("attribute: ", "minStep","\tvalue: ", minStep, "\ttype: ",class(minStep),"\n")
         
-        # update iter
-        iterid<-iterid+1
-        
+        if (as.numeric(DMCopy["weight",attr_i]) >= as.numeric(maxStep)){
+          #cat("Skipping..\t")
+          #cat("\n")
+          #Sys.sleep(5)
+          break
+        }else{
+          #cat("Storing..\t")
+          #cat("\n")
+          #Sys.sleep(1)
+          DB <- updateDB(DMCopy, DB, alg, algParams, attr_i, iterid, verbose)
+          
+          # update iter
+          iterid<-iterid+1
+        }
       } #endwhile
+
 
       
       # For debugging
@@ -226,7 +251,12 @@ decreaseAttribute <- function(DMCopyj,
   DMCopyj["weight",attr_j] <- DMCopyj["weight",attr_j] - step
   
   # Update every other attribute's weight in the DM
-  DMCopyj["weight",][which(names(DMCopyj) != attr_j)] <- DMCopyj["weight",][which(names(DMCopyj) != attr_j)]+split_step
+  DMCopyj["weight",][which(names(DMCopyj) != attr_j)] <- DMCopyj["weight",][which(names(DMCopyj) != attr_j)] + split_step
+
+  #if(any(as.list(DMCopyj["weight",])) < 0){
+  #  sys.sleep(5)
+  #}
+  
   return(DMCopyj)
 }
 
@@ -245,17 +275,22 @@ decreaseAttribute <- function(DMCopyj,
 #' 
 #' 
 #' 
-increaseAttribute <- function(DMCopyj,
-                              attr_j,
+increaseAttribute <- function(DMCopyk,
+                              attr_k,
                               step,
                               split_step){
   
   # Update just the target attributes weight -> 0
-  DMCopyj["weight",attr_j] <- DMCopyj["weight",attr_j] + step
+  DMCopyk["weight",attr_k] <- DMCopyk["weight",attr_k] + step
   
   # Update every other attribute's weight in the DM
-  DMCopyj["weight",][which(names(DMCopyj) != attr_j)] <- DMCopyj["weight",][which(names(DMCopyj) != attr_j)]-split_step
-  return(DMCopyj)
+  DMCopyk["weight",][which(names(DMCopyk) != attr_k)] <- DMCopyk["weight",][which(names(DMCopyk) != attr_k)] - split_step
+  
+  #if(any(as.list(DMCopyk["weight",])) < 0){
+  #  sys.sleep(5)
+  #}
+  
+  return(DMCopyk)
 }
 
 #' Helper for sensitivity'

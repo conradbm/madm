@@ -12,29 +12,23 @@ source("Functions/Sensitivity.R")
 dm <- read.data.matrix("Data/maut_validate.csv", header=TRUE)
 
 names(dm)
-FinalDB <- sensitivity(data=dm, 
-                       step=0.1, #optional
-                       algs=c("TOPSIS", "MAUT"), #optional
-                       algParams=list(MAUT=list(scales=c("linear",
-                                                         "linear",
-                                                         "exponential"))),#optional
-                       verbose=FALSE)#optional
-nrow(FinalDB)
-step=0.1
-
-trimmedDB <- subset(FinalDB, (FinalDB[,c(1:ncol(dm))] > step & FinalDB[,c(1:ncol(dm))] < (1-step)))
-trimmedDB <- trimmedDB[complete.cases(trimmedDB),]
+FinalDB <- sensitivity(data=dm) #optional
+FinalDB
+summary(FinalDB)
+FinalDB[nrow(FinalDB),]
+#trimmedDB <- subset(FinalDB, (FinalDB[,c(1:ncol(dm))] > step & FinalDB[,c(1:ncol(dm))] < (1-step)))
+#trimmedDB <- trimmedDB[complete.cases(trimmedDB),]
 
 #errors in not touching step, but touching (1-step).
 #errors in some rows containing negative numbers.
 
-nrow(trimmedDB)
+#nrow(trimmedDB)
 summary(FinalDB)
 nrow(FinalDB)
-summary(trimmedDB)
+#summary(trimmedDB)
 write.csv(FinalDB, "final.csv")
-write.csv(trimmedDB, "trimmed.csv")
-FinalDB[89:92,c(1,2,3)] < 0.01
+#write.csv(trimmedDB, "trimmed.csv")
+#FinalDB[89:92,c(1,2,3)] < 0.01
 ###
 ### Example data if needed.
 ###
@@ -57,13 +51,13 @@ FinalDB[89:92,c(1,2,3)] < 0.01
 
 #topsisRes
 
-dm <- read.data.matrix("Data/maut_validate.csv", header=TRUE)
+#dm <- read.data.matrix("Data/maut_validate.csv", header=TRUE)
 #mautRes <- MAUT(dm)
 #mautRes$Results
 #mautRes
-dm <- read.data.matrix("Data/maut_validate.csv", header=TRUE)
-FinalDB <- sensitivity(data=dm, verbose=TRUE)
-FinalDB
+#dm <- read.data.matrix("Data/maut_validate.csv", header=TRUE)
+#FinalDB <- sensitivity(data=dm, verbose=TRUE)
+#FinalDB
 #fdb <- sensitivity(data=dm, algs=c("MAUT", "ELECTRE"), algsParams=c(list(),list()), verbose=TRUE)
 #fdb <- sensitivity(data=dm, attr=c("x1","x2"),algs=c("TOPSIS","MAUT"), algsParams=c(list(),list(scales=c("linear","logarithmic","exponential"))),verbose=TRUE)
 #write.csv(FinalDB,"test.csv")
