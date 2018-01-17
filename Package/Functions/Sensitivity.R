@@ -34,6 +34,9 @@ source("Functions/Algorithms.R")
 #' 0.1/(3-1) to give us 0.1/2==0.05, therefore attribuet1 and attribute2 will increase by 0.05 when attribute2 goes down 0.1.
 #' The generalization to this is step/(1-N) in the algorithm. 
 #' @param verbose, default to FALSE. As with most linux command line applications, this will give you a highly detailed picture of what type of iterations are taking place under the hood.
+#' @param algs ...
+#' @param algParams ...
+#' @param splitPercentages
 #' @example FinalDB <- sensitivity(dm, verbose=FALSE)
 #' 
 #' 
@@ -54,7 +57,7 @@ sensitivity <- function(data=c(),
   
   DM <- data
   FinalDB = data.frame()
-
+  
   
   if(verbose) cat("step size: ", step, "\n")
   if(verbose) cat("percentageSplit: ", splitPercentages, "\n")
@@ -72,7 +75,7 @@ sensitivity <- function(data=c(),
     if(verbose) cat("default uniform splitting for weights of all non-specified attributes will be applied. The total number of attributes supplied is ", length(names(DM)), " meaning ", length(names(DM))-1, " attributes can acquire the split percentages, therefore " ,1/(length(names(DM))-1),"% will be split amongst each on every step through the sensitivity analysis.","\n")
     
     cat("Default splits assumed.\n")
-    FinalDB <- default_sensitivity(DM, DB, algs, algParams, step, verbose)
+    FinalDB <- default_sensitivity(DM, DB, attr, algs, algParams, step, verbose)
     
     #cat("Trimming down data.\n")
     # Data scrubbing -- remove all invalid rows
@@ -104,6 +107,7 @@ sensitivity <- function(data=c(),
 #'
 default_sensitivity <- function(DM, 
                                 DB,
+                                attr,
                                 algs,
                                 algParams,
                                 step,
@@ -114,6 +118,8 @@ default_sensitivity <- function(DM,
   
   # If no algorithm specified, do all!
   if(length(algs)==0) algs <- c("TOPSIS", "MAUT")
+  
+  if(length(attr)==0) attr <- names(DM)
   
   # Constants for DB & calculations
   iterid     <-1
@@ -126,12 +132,12 @@ default_sensitivity <- function(DM,
   
   # Keep a fresh copy of the DM from points: attrVal->step
   DMCopy <- DM
-
+  
   for(alg in algs){
     
     if(verbose) cat("Running method: ", alg, ".\n")
     
-    for(attr_i in names(DMCopy)){
+    for(attr_i in attr){
       
       cat(". ")
       
@@ -143,14 +149,14 @@ default_sensitivity <- function(DM,
       # Initial run w/o inc/dec
       DB <- updateDB(DMCopy, DB, alg, algParams, attr_i, iterid, verbose)
       iterid<-iterid+1
-
+      
       repeat{
         
         if(verbose) cat(DMCopy["weight",attr_i],"\t")
         
         # Update the DM
         DMCopy <- decreaseAttribute(DMCopy, attr_i, step, split_step)
-
+        
         if(verbose) cat("attribute: ", attr_i,"\tvalue: ",DMCopy["weight",attr_i],"\ttype: ",class(DMCopy["weight",attr_i]),"\n")
         if(verbose) cat("attribute: ", "minStep","\tvalue: ", minStep, "\ttype: ",class(minStep),"\n")
         
@@ -176,7 +182,7 @@ default_sensitivity <- function(DM,
       
       # Keep a fresh copy of the DM from points: attrVal->(1-step)
       DMCopy <- DM
-
+      
       # For debugging
       if(verbose) cat("*** Analyzing from ", DMCopy["weight", attr_i], " to ",(1-step),".*** \n")
       if(verbose) cat("Current weight...\t")
@@ -187,7 +193,7 @@ default_sensitivity <- function(DM,
         
         # If next step is valid, while will engage
         DMCopy <- increaseAttribute(DMCopy, attr_i, step, split_step)
-
+        
         if(verbose) cat("attribute: ", attr_i,"\tvalue: ",DMCopy["weight",attr_i],"\ttype: ",class(DMCopy["weight",attr_i]),"\n")
         if(verbose) cat("attribute: ", "minStep","\tvalue: ", minStep, "\ttype: ",class(minStep),"\n")
         
@@ -206,8 +212,8 @@ default_sensitivity <- function(DM,
           iterid<-iterid+1
         }
       } #endwhile
-
-
+      
+      
       
       # For debugging
       if(verbose) cat("\n")
@@ -252,7 +258,7 @@ decreaseAttribute <- function(DMCopyj,
   
   # Update every other attribute's weight in the DM
   DMCopyj["weight",][which(names(DMCopyj) != attr_j)] <- DMCopyj["weight",][which(names(DMCopyj) != attr_j)] + split_step
-
+  
   #if(any(as.list(DMCopyj["weight",])) < 0){
   #  sys.sleep(5)
   #}
