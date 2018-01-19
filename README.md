@@ -19,7 +19,7 @@
         <li> Optional user defined <code>step sizes</code> allowing variable fidelity </li>
         <li> Optional user defined <code>window sizes</code> allowing only thresholds of sensitivty interest </li>
         <li> Optional user defined <code>splitting of percentages</code> as weights fluctuate accross the sensitivity, cultivating human interaction and bias to make a more rich and realistic analysis</li>
-        <li> Provision to <code>as little or as much detail desired</code>, allowing flexibility on analysis and results to  data</li>
+        <li> Provision to <code>as much analysis output</code> as generated, fostering analysts independent exploration via output in a well known and exportable format</li>
     </ul>
 </li>
 </ul>
