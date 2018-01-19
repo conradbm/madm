@@ -11,15 +11,15 @@
         <li> <em>Risk Prone Scaling</em> (<code>Logarithmic</code>) </li>
     </ul>
 </li>
-<li> Sensitivity Analysis including functionality to allow:
+<li> Sensitivity Analysis including:
     <ul> 
-        <li> Specific or <code>any number of attributes to be examined</code> in the sensitivity analysis </li>
-        <li> Specific or exaustive <code>sensitivity searching</code> to determine all important weighting combinations for you </li>
-        <li> Specific or <code>many number of madmr methods</code> supported in the most up to date version of the package </li>
-        <li> Optional user defined <code>step sizes</code> to tailor your desired fidelity </li>
-        <li> Optional user defined <code>window sizes</code> to introduce regions of interest to allow pockets of constrained sensitivity to be examined </li>
-        <li> Optional user defined <code>splitting of percetnages</code> as weights fluctuate accross the sensitivity, allowing a human interaction and bias to enter into the analysis</li>
-        <li> Provision to <code>as little or as much detail desired</code>, allowing flexibility on analysis and results to your data</li>
+        <li> Specific or <code>any number of examinable attributes</code> </li>
+        <li> Specific or exhaustive <code>sensitivity searching</code> to determine tailored importance weighting combinations</li>
+        <li> Specific or <code>any number of madmr methods</code> (see above) supported in the latest version of the package </li>
+        <li> Optional user defined <code>step sizes</code> allowing variable fidelity </li>
+        <li> Optional user defined <code>window sizes</code> allowing only thresholds of sensitivty interest </li>
+        <li> Optional user defined <code>splitting of percentages</code> as weights fluctuate accross the sensitivity, cultivating human interaction and bias to make a more rich and realistic analysis</li>
+        <li> Provision to <code>as little or as much detail desired</code>, allowing flexibility on analysis and results to  data</li>
     </ul>
 </li>
 </ul>
