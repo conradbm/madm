@@ -49,6 +49,7 @@ read.data.matrix <- function(path, header=TRUE){
   }
   
   dm <- read.csv(path, header=header)
+  #allow a benefit row named: benefit, to contain + + - ect.. to represent benefit or cost
   row.names(dm) <- dm[,1]
   dm <- dm[,2:ncol(dm)]
   dm
