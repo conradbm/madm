@@ -43,7 +43,7 @@ source("Functions/Algorithms.R")
 #' Consider adding a StepRange=c(0.1:0.5, by=0.1) to run this for multiple steps
 #' 
 sensitivity <- function(data=c(), 
-                        algs=c(),
+                        algs=c("TOPSIS","MAUT"),
                         algParams=c(),
                         step=0.01,
                         attr=c(), 
@@ -65,6 +65,7 @@ sensitivity <- function(data=c(),
   if(is.vector(attr) || is.list(attr)){
     if(length(attr) == 0){
       if(verbose) cat("attr left empty will default to examine all attributes.\n")
+      attr<-names(DM)
     }
     else{
       if(verbose) cat("attributes focus: ", attr, "\n")
@@ -117,9 +118,9 @@ default_sensitivity <- function(DM,
   cat("Default sensitivity beginning. \n")
   
   # If no algorithm specified, do all!
-  if(length(algs)==0) algs <- c("TOPSIS", "MAUT")
+  #if(length(algs)==0) algs <- c("TOPSIS","MAUT")
   
-  if(length(attr)==0) attr <- names(DM)
+  #if(length(attr)==0) attr <- names(DM)
   
   # Constants for DB & calculations
   iterid     <-1
@@ -130,7 +131,7 @@ default_sensitivity <- function(DM,
   maxStep    <- (1-step)
   DB         <- data.frame() # Database to store our results
   
-  # Keep a fresh copy of the DM from points: attrVal->step
+  # Keep a fresh copy of the DM so as we update we dont lose information
   DMCopy <- DM
   
   for(alg in algs){
@@ -160,7 +161,7 @@ default_sensitivity <- function(DM,
         if(verbose) cat("attribute: ", attr_i,"\tvalue: ",DMCopy["weight",attr_i],"\ttype: ",class(DMCopy["weight",attr_i]),"\n")
         if(verbose) cat("attribute: ", "minStep","\tvalue: ", minStep, "\ttype: ",class(minStep),"\n")
         
-        if(DMCopy["weight",attr_i] <= minStep){
+        if(DMCopy["weight",attr_i] >= minStep){
           #cat("Skipping..\t")
           #cat("\n")
           #Sys.sleep(5)
@@ -197,7 +198,7 @@ default_sensitivity <- function(DM,
         if(verbose) cat("attribute: ", attr_i,"\tvalue: ",DMCopy["weight",attr_i],"\ttype: ",class(DMCopy["weight",attr_i]),"\n")
         if(verbose) cat("attribute: ", "minStep","\tvalue: ", minStep, "\ttype: ",class(minStep),"\n")
         
-        if (as.numeric(DMCopy["weight",attr_i]) >= as.numeric(maxStep)){
+        if (DMCopy["weight",attr_i] <= maxStep){
           #cat("Skipping..\t")
           #cat("\n")
           #Sys.sleep(5)
@@ -343,6 +344,12 @@ updateDB <- function(DMCopy,
   container$alg <- alg
   container$attr_i <- attr_i
   container$iterid <- iterid
+  
+  #IS THIS AN EDGE CASE? ie ranks changed?
+  #if(nrow(DB)==0) container$reportOut <- FALSE
+ # else if (DB[(nrow(DB)-4):(nrow(DB)),"ranks"]==
+ #          container[1:nrow(DB), "ranks",]) container$reportOut<-FALSE
+#  else container$reportOut <- TRUE
   
   # Store in the database
   DB <- rbind(DB, container)
