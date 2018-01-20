@@ -28,15 +28,18 @@ source("Functions/Algorithms.R")
 #' @param attr, automatically set to c() will trigger a full sensitivity accross all attributes.
 #'  If a list of valid attribuets are provided, the sensitivity will only trigger these attributes
 #'  in the sensitivity and reflect them only in the returned database.
+#' @param window, double or vector w/ 1 double per attr, specifies how low and high a step size will go for each attribute relative to its 
+#' current weight. if window exceeds 1 attr below0 or above1, the window for that attr will be void and the
+#'  next will be assessed.
 #' @param splitPercentages, automatically set to uniform. This means as you incrementally increase and
 #' decrease an attributes weight value, the percetnage given to each other attribute is equal. An example would
 #' be with 3 attributes, we toggle attribute2 down from 0.3 to 0.2. So we lost 0.1 from attribute2, so we will take
 #' 0.1/(3-1) to give us 0.1/2==0.05, therefore attribuet1 and attribute2 will increase by 0.05 when attribute2 goes down 0.1.
 #' The generalization to this is step/(1-N) in the algorithm. 
 #' @param verbose, default to FALSE. As with most linux command line applications, this will give you a highly detailed picture of what type of iterations are taking place under the hood.
-#' @param algs ...
-#' @param algParams ...
-#' @param splitPercentages
+#' @param algs,vector,
+#' @param algParams, list of named vectors,
+#' @param splitPercentages,matrix of size n-1 by n-1, for each attr how to weigh every other attr from the inc/dec in step. each row should sum to 1.
 #' @example FinalDB <- sensitivity(dm, verbose=FALSE)
 #' 
 #' 
@@ -46,6 +49,7 @@ sensitivity <- function(data=c(),
                         algs=c("TOPSIS","MAUT"),
                         algParams=c(),
                         step=0.01,
+                        window=c(),
                         attr=c(), 
                         splitPercentages="uniform", 
                         verbose=FALSE){
@@ -71,6 +75,9 @@ sensitivity <- function(data=c(),
       if(verbose) cat("attributes focus: ", attr, "\n")
     }
   }
+  #if length(window) == 0 
+  # if vector or list or double
+  # set values for each attr
   
   if(splitPercentages == "uniform"){
     if(verbose) cat("default uniform splitting for weights of all non-specified attributes will be applied. The total number of attributes supplied is ", length(names(DM)), " meaning ", length(names(DM))-1, " attributes can acquire the split percentages, therefore " ,1/(length(names(DM))-1),"% will be split amongst each on every step through the sensitivity analysis.","\n")
@@ -88,6 +95,7 @@ sensitivity <- function(data=c(),
     cat("Custom splits were decided at: ", splitPercentages, "\n")
     cat("Non-uniform split percentages is not yet supported in this package. Try a later version for this functionality.\n")
     FinalDB <- custom_sensitivity(DM, DB, algs, algParams, step, attr, splitPercentages, verbose)
+    # same as default just when increase/decreaseAttribute is called scale by the row in splitPerc that attr_i is in names(dm)
   }
   return(FinalDB)
 }
