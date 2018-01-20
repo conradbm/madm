@@ -5,29 +5,47 @@
 #' This function allows you to import a csv into the correct data.matrix format for the madm package
 #'
 #' @author Blake Conrad
-#' @param path, header=TRUE 
-#' @keywords data.frame, read.csv
+#' @param path, an absolute path to the raw decision matrix in the 'read.data.matrix' format.
+#' @param header, Boolean, default to true, will flag the read.csv function with whether header columns are included or not.
+#' @keywords data.frame, read.csv.
 #' @return data.matrix format of a data.frame
 #' @examples
 #' read.data.matrix("C:/Desktop")
 #' 
 #' Convert a standard import of:
 #'
+#'         name      x1  x2  x3Cost
+#' 1       weight    0.2 0.2 0.6
+#' 2 alternative1    0.5 0.5 0.5
+#' 3 alternative2    0.5 0.5 0.5
+#' 4 alternative3    0.5 0.5 0.5
+#' 
+#' OR
+#' 
 #'         name      x1  x2  x3
+#'         benefit   +   +    -
 #' 1       weight    0.2 0.2 0.6
 #' 2 alternative1    0.5 0.5 0.5
 #' 3 alternative2    0.5 0.5 0.5
 #' 4 alternative3    0.5 0.5 0.5
 #'
+#'
 #' into (with rownames instead of a rownames column):
 #'
-#'               x1  x2  x3
+#'               x1  x2  x3Cost
 #' weight       0.2 0.2 0.6
 #' alternative1 0.5 0.5 0.5
 #' alternative2 0.5 0.5 0.5
 #' alternative3 0.5 0.5 0.5
 #'
+#' OR
 #' 
+#'                    x1  x2  x3
+#'        benefit     +   +    -
+#' 1       weight    0.2 0.2 0.6
+#' 2 alternative1    0.5 0.5 0.5
+#' 3 alternative2    0.5 0.5 0.5
+#' 4 alternative3    0.5 0.5 0.5
 #' Standard Decision Matrix Format (N+1)xD:
 #'
 #'               attribute1 attribute2 ... attributei ... attributeD

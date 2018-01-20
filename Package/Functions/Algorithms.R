@@ -22,6 +22,7 @@
 TOPSIS <- function(data=DM, algParams=c(), verbose=FALSE){
   
   DM <- data
+  #AltIdxStart <- (which(row.names(DM)=="weight")+1)
   
   #print(algParams)
   #Sys.sleep(100000)

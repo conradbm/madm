@@ -40,6 +40,7 @@ source("Functions/Algorithms.R")
 #' @param algs,vector,
 #' @param algParams, list of named vectors,
 #' @param splitPercentages,matrix of size n-1 by n-1, for each attr how to weigh every other attr from the inc/dec in step. each row should sum to 1.
+#' @return
 #' @example FinalDB <- sensitivity(dm, verbose=FALSE)
 #' 
 #' 
@@ -75,6 +76,7 @@ sensitivity <- function(data=c(),
       if(verbose) cat("attributes focus: ", attr, "\n")
     }
   }
+  
   #if length(window) == 0 
   # if vector or list or double
   # set values for each attr
@@ -114,6 +116,8 @@ sensitivity <- function(data=c(),
 #'
 #'
 #'
+#'
+#' @return
 default_sensitivity <- function(DM, 
                                 DB,
                                 attr,
@@ -122,13 +126,12 @@ default_sensitivity <- function(DM,
                                 step,
                                 verbose){ 
   
-  
   cat("Default sensitivity beginning. \n")
   
   # If no algorithm specified, do all!
-  #if(length(algs)==0) algs <- c("TOPSIS","MAUT")
+  if(length(algs)==0) algs <- c("TOPSIS","MAUT")
   
-  #if(length(attr)==0) attr <- names(DM)
+  if(length(attr)==0) attr <- names(DM)
   
   # Constants for DB & calculations
   iterid     <-1
@@ -168,13 +171,8 @@ default_sensitivity <- function(DM,
         
         if(verbose) cat("attribute: ", attr_i,"\tvalue: ",DMCopy["weight",attr_i],"\ttype: ",class(DMCopy["weight",attr_i]),"\n")
         if(verbose) cat("attribute: ", "minStep","\tvalue: ", minStep, "\ttype: ",class(minStep),"\n")
-        
-        if(DMCopy["weight",attr_i] >= minStep){
-          #cat("Skipping..\t")
-          #cat("\n")
-          #Sys.sleep(5)
-          break
-        }else{
+
+        if(DMCopy["weight",attr_i] > minStep){
           #cat("Storing..\t")
           #cat("\n")
           #Sys.sleep(1)
@@ -183,6 +181,12 @@ default_sensitivity <- function(DM,
           
           # update iter
           iterid<-iterid+1
+        }else{
+          
+          #cat("Skipping..\t")
+          #cat("\n")
+          #Sys.sleep(5)
+          break
         }
       } #endwhile
       
@@ -206,12 +210,8 @@ default_sensitivity <- function(DM,
         if(verbose) cat("attribute: ", attr_i,"\tvalue: ",DMCopy["weight",attr_i],"\ttype: ",class(DMCopy["weight",attr_i]),"\n")
         if(verbose) cat("attribute: ", "minStep","\tvalue: ", minStep, "\ttype: ",class(minStep),"\n")
         
-        if (DMCopy["weight",attr_i] <= maxStep){
-          #cat("Skipping..\t")
-          #cat("\n")
-          #Sys.sleep(5)
-          break
-        }else{
+        if (DMCopy["weight",attr_i] < maxStep){
+          
           #cat("Storing..\t")
           #cat("\n")
           #Sys.sleep(1)
@@ -219,6 +219,14 @@ default_sensitivity <- function(DM,
           
           # update iter
           iterid<-iterid+1
+          
+          
+        }else{
+          
+          #cat("Skipping..\t")
+          #cat("\n")
+          #Sys.sleep(5)
+          break
         }
       } #endwhile
       
@@ -271,8 +279,8 @@ decreaseAttribute <- function(DMCopyj,
   #if(any(as.list(DMCopyj["weight",])) < 0){
   #  sys.sleep(5)
   #}
-  
-  return(DMCopyj)
+
+    return(DMCopyj)
 }
 
 #'
@@ -318,7 +326,7 @@ increaseAttribute <- function(DMCopyk,
 #' @param attr_i, character, a specific column name in the DMCopy which is being sensitively analyzed.
 #' @param iterid, integer, meant to keep track of indices for the DB.
 #' @param verbose, boolean, useful if TRUE for debugging.
-#' 
+#' @return
 #' 
 updateDB <- function(DMCopy, 
                      DB,
@@ -353,11 +361,25 @@ updateDB <- function(DMCopy,
   container$attr_i <- attr_i
   container$iterid <- iterid
   
-  #IS THIS AN EDGE CASE? ie ranks changed?
-  #if(nrow(DB)==0) container$reportOut <- FALSE
- # else if (DB[(nrow(DB)-4):(nrow(DB)),"ranks"]==
- #          container[1:nrow(DB), "ranks",]) container$reportOut<-FALSE
-#  else container$reportOut <- TRUE
+  #Beta testing for edge cases
+  
+  #print(DB[(nrow(DB)-(length(alts)-1)):(nrow(DB)),]$ranks)
+  #print(container[,]$ranks)
+  #print(any(DB[(nrow(DB)-(length(alts)-1)):(nrow(DB)),"ranks"] != container[, "ranks"]))
+  Sys.sleep(3)
+  
+ 
+  if (any(DB[(nrow(DB)-(length(alts)-1)):(nrow(DB)),"ranks"] != container[, "ranks"])){
+    container$reportOut<-TRUE
+  }
+     
+  else{
+    container$reportOut <- FALSE
+    #print(DB[(nrow(DB)-(length(alts)-1)):(nrow(DB)),]$ranks)
+    #print(container[,]$ranks)
+    #print(any(DB[(nrow(DB)-(length(alts)-1)):(nrow(DB)),"ranks"] != container[, "ranks"]))
+    #Sys.sleep(15)
+  } 
   
   # Store in the database
   DB <- rbind(DB, container)
@@ -366,7 +388,14 @@ updateDB <- function(DMCopy,
 
 
 
-# Helper for sensitivity
+#' Helper for sensitivity
+#' @param 
+#' @param
+#' @param 
+#' @example
+#' @return
+#' 
+#' 
 custom_sensitivity <- function(DM,
                                DB,
                                step, 

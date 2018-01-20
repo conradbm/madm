@@ -7,16 +7,19 @@
 # Allow sensitivty to include window sizes (rather than just [step,1-step]
 # Allow sensitivty to have split percentages
 
-setwd("C:/Users/1517766115.CIV/Desktop/Topics")
+getwd()
+setwd("/Users/bmc/Desktop/madm/Package/")
 source("Functions/FileIO.R")
 source("Functions/Algorithms.R")
 source("Functions/Sensitivity.R")
+#dm <- read.data.matrix("Data/maut_validate_benefits.csv", header=TRUE)
+#dm <- read.data.matrix("Data/topsis_validate_benefits.csv", header=TRUE)
 dm <- read.data.matrix("Data/maut_validate.csv", header=TRUE)
-
 names(dm)
+dm
 FinalDB <- sensitivity(data=dm,
-                       step=.1,
-                       attr="Sq.Foot",
+                       step=0.1,
+                       window=0.1,
                        algs=c("TOPSIS", "MAUT"),
                        algParams=list(MAUT=list(scales=list("linear", "linear", "exponential"))),
                        verbose=FALSE) #optional
@@ -32,15 +35,11 @@ FinalDB
 
 FinalDB
 summary(FinalDB)
-FinalDB[nrow(FinalDB),]
-
+write.csv(FinalDB, "final2.csv")
 # Trimmed
 #trimmedDB <- subset(FinalDB, (FinalDB[,c(1:ncol(dm))] > step & FinalDB[,c(1:ncol(dm))] < (1-step)))
 #trimmedDB <- trimmedDB[complete.cases(trimmedDB),]
 
-summary(FinalDB)
-nrow(FinalDB)
-write.csv(FinalDB, "final.csv")
 
 
 
