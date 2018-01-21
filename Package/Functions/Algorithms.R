@@ -177,7 +177,9 @@ MAUT <- function(data=DM, algParams=c(), scales=c(), verbose=FALSE){
       # ... Detemrine if specific parameter exists ...
       if("scales" %in% names(algParams$MAUT)){
         # ... Set specific parameter here ...
-        if(verbose) cat("Setting scales to: ",algParams$MAUT$scales,".\n")
+        if(verbose) cat("Setting scales to: ")
+        if(verbose) print(algParams$MAUT$scales)
+        if(verbose) cat("\n")
         scales <- algParams$MAUT$scales
       }
       else{

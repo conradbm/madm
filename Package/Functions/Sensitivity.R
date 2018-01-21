@@ -5,6 +5,8 @@
 #' Import libraries
 #' 
 #' 
+library(ggplot2)
+source("Globals/DB_Globals.R")
 source("Functions/Algorithms.R")
 
 
@@ -61,8 +63,8 @@ sensitivity <- function(data=c(),
   #options(scipen=9)
   
   DM <- data
-  FinalDB = data.frame()
-  
+  plt<-ggplot()
+  retList<-list()
   
   if(verbose) cat("step size: ", step, "\n")
   if(verbose) cat("percentageSplit: ", splitPercentages, "\n")
@@ -85,21 +87,35 @@ sensitivity <- function(data=c(),
     if(verbose) cat("default uniform splitting for weights of all non-specified attributes will be applied. The total number of attributes supplied is ", length(names(DM)), " meaning ", length(names(DM))-1, " attributes can acquire the split percentages, therefore " ,1/(length(names(DM))-1),"% will be split amongst each on every step through the sensitivity analysis.","\n")
     
     cat("Default splits assumed.\n")
-    FinalDB <- default_sensitivity(DM, DB, attr, algs, algParams, step, verbose)
+    DB_Final <- default_sensitivity(DM, DB, attr, algs, algParams, step, verbose)
     
-    #cat("Trimming down data.\n")
-    # Data scrubbing -- remove all invalid rows
-    #trimmedDB <- subset(FinalDB, (FinalDB[,c(1:ncol(DM))] > step & FinalDB[,c(1:ncol(DM))] < (1-step)))
-    #FinalDB <- trimmedDB[complete.cases(trimmedDB),]
-    #cat("Trimming finished.\n")
   }
   else{
     cat("Custom splits were decided at: ", splitPercentages, "\n")
     cat("Non-uniform split percentages is not yet supported in this package. Try a later version for this functionality.\n")
-    FinalDB <- custom_sensitivity(DM, DB, algs, algParams, step, attr, splitPercentages, verbose)
+    DB_Final <- custom_sensitivity(DM, DB, algs, algParams, step, attr, splitPercentages, verbose)
     # same as default just when increase/decreaseAttribute is called scale by the row in splitPerc that attr_i is in names(dm)
   }
-  return(FinalDB)
+
+  
+  # Get most important cases
+  DB_Edges <- DB_Final[DB_Final$reportOut==TRUE,][,c((ncol(DM)+1):ncol(DB_Final))]
+  
+  # Quick plot for speedy visualization
+  plt <- ggplot(data=DB_Edges,
+                aes(x=alts, y=weight, color=ranks)) 
+  plt <- plt + geom_boxplot() 
+  plt <- plt + facet_wrap(~alg+attr_i) 
+  plt <- plt + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  
+  # Concise list to capture important elements of analysis
+  retList = list(Results=DB_Final,
+                 EdgeCasesResults=DB_Edges,
+                 Plot=plt,
+                 Summary=summary(DB_Final))
+  
+  # Return all, a ggplot2 object, and a consolidated summary
+  return(retList)
 }
 
 
@@ -126,6 +142,7 @@ default_sensitivity <- function(DM,
                                 step,
                                 verbose){ 
   
+  
   cat("Default sensitivity beginning. \n")
   
   # If no algorithm specified, do all!
@@ -140,8 +157,7 @@ default_sensitivity <- function(DM,
   split_step <- step/(N-1)
   minStep    <- step
   maxStep    <- (1-step)
-  DB         <- data.frame() # Database to store our results
-  
+
   # Keep a fresh copy of the DM so as we update we dont lose information
   DMCopy <- DM
   
@@ -335,8 +351,7 @@ updateDB <- function(DMCopy,
                      attr_i, 
                      iterid,
                      verbose){
-  
-  
+
   # Constants to store
   weights <- as.list(t(DMCopy["weight",]))
   names(weights) <- row.names(t(DMCopy["weight",]))
@@ -360,28 +375,45 @@ updateDB <- function(DMCopy,
   container$alg <- alg
   container$attr_i <- attr_i
   container$iterid <- iterid
-  
+  container$weight <- DMCopy["weight", attr_i]
   #Beta testing for edge cases
   
   #print(DB[(nrow(DB)-(length(alts)-1)):(nrow(DB)),]$ranks)
   #print(container[,]$ranks)
   #print(any(DB[(nrow(DB)-(length(alts)-1)):(nrow(DB)),"ranks"] != container[, "ranks"]))
-  Sys.sleep(3)
+  #Sys.sleep(3)
   
- 
-  if (any(DB[(nrow(DB)-(length(alts)-1)):(nrow(DB)),"ranks"] != container[, "ranks"])){
-    container$reportOut<-TRUE
+  # If the attr just changed, it should not count as an edge case
+
+  # If the ranks changed
+  if(!is.null(DB[(nrow(DB)-(length(alts)-1)):(nrow(DB)),"ranks"])){
+    if (any(DB[(nrow(DB)-(length(alts)-1)):(nrow(DB)),"ranks"] != container[, "ranks"])){
+      
+      # Attr change isn't edge case
+      if(tail(DB,1)$attr_i != attr_i){
+        container$reportOut <- FALSE
+      }
+      # It was the same attribute, and indeed is an edge case
+      else{
+        container$reportOut<-TRUE
+      }
+      
+    }
+    else{
+      container$reportOut <- FALSE
+      #print(DB[(nrow(DB)-(length(alts)-1)):(nrow(DB)),]$ranks)
+      #print(container[,]$ranks)
+      #print(any(DB[(nrow(DB)-(length(alts)-1)):(nrow(DB)),"ranks"] != container[, "ranks"]))
+      #Sys.sleep(15)
+    } 
   }
-     
   else{
     container$reportOut <- FALSE
-    #print(DB[(nrow(DB)-(length(alts)-1)):(nrow(DB)),]$ranks)
-    #print(container[,]$ranks)
-    #print(any(DB[(nrow(DB)-(length(alts)-1)):(nrow(DB)),"ranks"] != container[, "ranks"]))
-    #Sys.sleep(15)
-  } 
+  }
+
   
-  # Store in the database
+  # Update DB
+
   DB <- rbind(DB, container)
   return(DB)
 }

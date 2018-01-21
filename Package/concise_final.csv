@@ -1,0 +1,49 @@
+,alts,ranks,alg,attr_i,iterid,weight,reportOut
+21,Ranch,2,TOPSIS,Sq.Foot,6,0.7,TRUE
+22,Colonial,1,TOPSIS,Sq.Foot,6,0.7,TRUE
+23,Reverse Ranch,3,TOPSIS,Sq.Foot,6,0.7,TRUE
+24,Split Level,4,TOPSIS,Sq.Foot,6,0.7,TRUE
+29,Ranch,3,TOPSIS,Sq.Foot,8,0.9,TRUE
+30,Colonial,1,TOPSIS,Sq.Foot,8,0.9,TRUE
+31,Reverse Ranch,2,TOPSIS,Sq.Foot,8,0.9,TRUE
+32,Split Level,4,TOPSIS,Sq.Foot,8,0.9,TRUE
+45,Ranch,2,TOPSIS,Preference,12,0.1,TRUE
+46,Colonial,1,TOPSIS,Preference,12,0.1,TRUE
+47,Reverse Ranch,3,TOPSIS,Preference,12,0.1,TRUE
+48,Split Level,4,TOPSIS,Preference,12,0.1,TRUE
+49,Ranch,1,TOPSIS,Preference,13,0.5,TRUE
+50,Colonial,2,TOPSIS,Preference,13,0.5,TRUE
+51,Reverse Ranch,3,TOPSIS,Preference,13,0.5,TRUE
+52,Split Level,4,TOPSIS,Preference,13,0.5,TRUE
+93,Ranch,2,TOPSIS,PriceCost,24,0.8,TRUE
+94,Colonial,1,TOPSIS,PriceCost,24,0.8,TRUE
+95,Reverse Ranch,4,TOPSIS,PriceCost,24,0.8,TRUE
+96,Split Level,3,TOPSIS,PriceCost,24,0.8,TRUE
+97,Ranch,3,TOPSIS,PriceCost,25,0.9,TRUE
+98,Colonial,2,TOPSIS,PriceCost,25,0.9,TRUE
+99,Reverse Ranch,4,TOPSIS,PriceCost,25,0.9,TRUE
+100,Split Level,1,TOPSIS,PriceCost,25,0.9,TRUE
+113,Ranch,3,MAUT,Sq.Foot,29,0.5,TRUE
+114,Colonial,1,MAUT,Sq.Foot,29,0.5,TRUE
+115,Reverse Ranch,2,MAUT,Sq.Foot,29,0.5,TRUE
+116,Split Level,4,MAUT,Sq.Foot,29,0.5,TRUE
+141,Ranch,4,MAUT,Preference,36,0.2,TRUE
+142,Colonial,1,MAUT,Preference,36,0.2,TRUE
+143,Reverse Ranch,3,MAUT,Preference,36,0.2,TRUE
+144,Split Level,2,MAUT,Preference,36,0.2,TRUE
+149,Ranch,2,MAUT,Preference,38,0.5,TRUE
+150,Colonial,1,MAUT,Preference,38,0.5,TRUE
+151,Reverse Ranch,3,MAUT,Preference,38,0.5,TRUE
+152,Split Level,4,MAUT,Preference,38,0.5,TRUE
+153,Ranch,1,MAUT,Preference,39,0.6,TRUE
+154,Colonial,2,MAUT,Preference,39,0.6,TRUE
+155,Reverse Ranch,3,MAUT,Preference,39,0.6,TRUE
+156,Split Level,4,MAUT,Preference,39,0.6,TRUE
+177,Ranch,2,MAUT,PriceCost,45,0.4,TRUE
+178,Colonial,1,MAUT,PriceCost,45,0.4,TRUE
+179,Reverse Ranch,4,MAUT,PriceCost,45,0.4,TRUE
+180,Split Level,3,MAUT,PriceCost,45,0.4,TRUE
+181,Ranch,3,MAUT,PriceCost,46,0.5,TRUE
+182,Colonial,2,MAUT,PriceCost,46,0.5,TRUE
+183,Reverse Ranch,4,MAUT,PriceCost,46,0.5,TRUE
+184,Split Level,1,MAUT,PriceCost,46,0.5,TRUE
