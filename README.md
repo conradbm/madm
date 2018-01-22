@@ -23,9 +23,9 @@
     </ul>
 </li>
 </ul>
-<<hr>
+<hr>
 <p> references:</p>
 <ul> 
-<li><em>Multiple Attribute Decision Making, An Introduction</em> -- K. Paul Yoon and Ching-Lai Hwang</li>
-<li><em>Multi-Criteria Decision Analysis, Methods and Software</em> -- Alessio Ishizaka and Philippe Nemery</li>
+    <li><em>Multiple Attribute Decision Making, An Introduction</em> -- K. Paul Yoon and Ching-Lai Hwang</li>
+    <li><em>Multi-Criteria Decision Analysis, Methods and Software</em> -- Alessio Ishizaka and Philippe Nemery</li>
 </ul>
