@@ -52,10 +52,11 @@ sensitivity <- function(data=c(),
                         algs=c("TOPSIS","MAUT"),
                         algParams=c(),
                         step=0.01,
-                        window=c(),
+                        window=c(), #TODO
                         attr=c(), 
-                        splitPercentages="uniform", 
-                        verbose=FALSE){
+                        splitPercentages="uniform", #TODO
+                        verbose=FALSE,
+                        plotLabels=FALSE){
   
   # Disable scientific notation
   #options(scipen=999)
@@ -98,28 +99,41 @@ sensitivity <- function(data=c(),
   }
 
   
-  # Get most important cases
+  # Return a ggplot2 object of the database for quick visualization 
+  
+  # Get cases where ranks changed
   DB_Edges <- DB_Final[DB_Final$reportOut==TRUE,][,c((ncol(DM)+1):ncol(DB_Final))]
   
-  # Quick plot for speedy visualization
+  # Customized plot
   plt <- ggplot(data=DB_Edges,
                 aes(x=alts, y=weight, color=ranks)) 
-  plt <- plt + geom_boxplot() 
+  plt <- plt + theme_bw()
+  plt <- plt + geom_point()
   plt <- plt + facet_wrap(~alg+attr_i) 
   plt <- plt + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  plt <- plt + theme(axis.text.y = element_text(angle = 25))
+  plt <- plt + scale_y_continuous(breaks = round(seq(min(DB_Edges$weight), 1, by = step),1))
+  if(plotLabels) plt <- plt + geom_label(aes(label= round(weight,2)), show.legend = FALSE)
+  plt <- plt + ggtitle("Sensitivity Analysis") + xlab("Alternative") + ylab("Weight")
+  plt <- plt + theme(plot.title = element_text(family = "Trebuchet MS", 
+                                               color="#666666", 
+                                               face="bold",
+                                               size=32, 
+                                               hjust=0)) 
+  plt <- plt + theme(axis.title = element_text(family = "Trebuchet MS",
+                                               color="#666666",
+                                               size=22)) 
+  plt <- plt + theme(axis.title.x = element_text(face="bold"),
+                     axis.title.y = element_text(face="bold"))
   
   # Concise list to capture important elements of analysis
   retList = list(Results=DB_Final,
                  EdgeCasesResults=DB_Edges,
-                 Plot=plt,
-                 Summary=summary(DB_Final))
+                 Plot=plt)
   
   # Return all, a ggplot2 object, and a consolidated summary
   return(retList)
 }
-
-
-
 
 
 

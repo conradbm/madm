@@ -9,21 +9,29 @@
 
 getwd()
 setwd("/Users/bmc/Desktop/madm/Package/")
-source("Globals/DB_Globals.R")
 source("Functions/FileIO.R")
 source("Functions/Algorithms.R")
 source("Functions/Sensitivity.R")
 #dm <- read.data.matrix("Data/maut_validate_benefits.csv", header=TRUE)
 #dm <- read.data.matrix("Data/topsis_validate_benefits.csv", header=TRUE)
-dm <- read.data.matrix("Data/topsis_validate.csv", header=TRUE)
-names(dm)
+dm <- read.data.matrix("Data/maut_validate.csv", header=TRUE)
+dm
+str(dm)
+topRes <- TOPSIS(dm)
+topRes$Results
 FinalDB <- sensitivity(data=dm,
-                       algParams=list(MAUT=list(scales=list("linear", "linear", "linear",
-                                                            "exponential","exponential","exponential",
+                       step=0.1,
+                       algs=c("TOPSIS", "MAUT"),
+                       algParams=list(MAUT=list(scales=list("linear",
+                                                            "linear",
+                                                            "linear",
+                                                            "exponential",
+                                                            "exponential",
+                                                            "exponential",
                                                             "linear")))
+                       #algParams=list(MAUT=list(scales=list("linear", "linear", "exponential")))
                        ) #optional
 
-FinalDB$Plot
 #sensitivity <- function(data=c(), 
 #                        algs=c(),
 #                        algParams=c(),
@@ -31,25 +39,6 @@ FinalDB$Plot
 #                        attr=c(), 
 #                        splitPercentages="uniform", 
 #                        verbose=FALSE){
-
-FinalDB <- FinalDB[FinalDB$reportOut==TRUE,][,c(4:ncol(FinalDB))]
-library(ggplot2)
-ggplot(data=FinalDB[FinalDB$reportOut==TRUE,], aes(x=alts, y=weight, color=ranks)) + geom_boxplot() + facet_wrap(~alg+attr_i) + theme(axis.text.x = element_text(angle = 45, hjust = 1))
-summary(FinalDB)
-
-write.csv(FinalDB, "final2.csv")
-
-library(tidyr)
-fspread <- spread(FinalDB[FinalDB$reportOut==TRUE,],
-                  key=ranks,
-                  value=alts)
-fspread
-
-# Trimmed
-#trimmedDB <- subset(FinalDB, (FinalDB[,c(1:ncol(dm))] > step & FinalDB[,c(1:ncol(dm))] < (1-step)))
-#trimmedDB <- trimmedDB[complete.cases(trimmedDB),]
-
-
 
 
 ###############################
