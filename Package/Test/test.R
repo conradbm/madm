@@ -2,8 +2,6 @@
 
 # TODO ...
 # UNWRINKLE all parameters and what a user COULD put into it.
-# Allow sensitivty to report edge cases where change occurs.
-# Allow sensitivty to INCLUDE border cases
 # Allow sensitivty to include window sizes (rather than just [step,1-step]
 # Allow sensitivty to have split percentages
 
@@ -14,7 +12,7 @@ source("Functions/Algorithms.R")
 source("Functions/Sensitivity.R")
 #dm <- read.data.matrix("Data/maut_validate_benefits.csv", header=TRUE)
 #dm <- read.data.matrix("Data/topsis_validate_benefits.csv", header=TRUE)
-dm <- read.data.matrix("Data/maut_validate.csv", header=TRUE)
+dm <- read.data.matrix("Data/topsis_validate.csv", header=TRUE)
 dm
 str(dm)
 topRes <- TOPSIS(dm)
