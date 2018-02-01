@@ -58,7 +58,8 @@ sensitivity <- function(data=c(),
                         attr=c(), 
                         splitPercentages="uniform", #TODO
                         verbose=FALSE,
-                        plotLabels=FALSE){
+                        plotLabels=FALSE
+                        ){
   
   # Disable scientific notation
   #options(scipen=999)
@@ -117,13 +118,11 @@ sensitivity <- function(data=c(),
   plt <- plt + scale_y_continuous(breaks = round(seq(min(DB_Edges$weight), 1, by = step),1))
   if(plotLabels) plt <- plt + geom_label(aes(label= round(weight,2)), show.legend = FALSE)
   plt <- plt + ggtitle("Sensitivity Analysis") + xlab("Alternative") + ylab("Weight")
-  plt <- plt + theme(plot.title = element_text(family = "Trebuchet MS", 
-                                               color="#666666", 
+  plt <- plt + theme(plot.title = element_text(color="#666666", 
                                                face="bold",
                                                size=32, 
                                                hjust=0)) 
-  plt <- plt + theme(axis.title = element_text(family = "Trebuchet MS",
-                                               color="#666666",
+  plt <- plt + theme(axis.title = element_text(color="#666666",
                                                size=22)) 
   plt <- plt + theme(axis.title.x = element_text(face="bold"),
                      axis.title.y = element_text(face="bold"))

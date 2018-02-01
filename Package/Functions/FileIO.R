@@ -72,3 +72,40 @@ read.data.matrix <- function(path, header=TRUE){
   dm <- dm[,2:ncol(dm)]
   dm
 }
+
+
+flagDominated <- function(DM){
+  
+  #boolean vector for each alternative -- if true it is dominated, else false undominated
+  dominated <- c(rep(TRUE,(nrow(DM)-1)))
+  for (i in 2:(nrow(DM)-1)){
+    for (j in 1:(nrow(DM)-1)){
+      if(j != i){
+        # Execute
+        
+        a<-0
+        b<-0
+        # for benefit attributes
+        if(any(DM[i,] > DM[j,])){
+          a <- FALSE  
+        }
+        
+        # for cost attributes
+        if(any(DM[i,] < DM[j,])){
+          b <- FALSE  
+        }
+        
+        if(a == FALSE && b == FALSE){
+          dominated[i] <- FALSE
+        }
+      }
+    }
+  }
+  
+  return(DM[c(TRUE, !dominated),])
+  # for each alternative
+  #for each alternative except me
+  # for each attribute
+  # if i > someone return FALSE and break
+  # if(any(DM["alternative_i", "attr_k"] > DM["alternative_j", "attr_k"])) altDomVect[i] <- FALSE
+}

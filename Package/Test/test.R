@@ -4,12 +4,15 @@
 # UNWRINKLE all parameters and what a user COULD put into it.
 # Allow sensitivty to include window sizes (rather than just [step,1-step]
 # Allow sensitivty to have split percentages
-
+install.packages('simmer')
+library(simmer)
+version
 getwd()
-setwd("/Users/bmc/Desktop/madm/Package/")
+setwd("C:/Users/1517766115.CIV/Desktop/madm-madmr/Package")
 source("Functions/FileIO.R")
 source("Functions/Algorithms.R")
 source("Functions/Sensitivity.R")
+source("Globals/DB_Globals.R")
 #dm <- read.data.matrix("Data/maut_validate_benefits.csv", header=TRUE)
 #dm <- read.data.matrix("Data/topsis_validate_benefits.csv", header=TRUE)
 dm <- read.data.matrix("Data/topsis_validate.csv", header=TRUE)
@@ -17,19 +20,23 @@ dm
 str(dm)
 topRes <- TOPSIS(dm)
 topRes$Results
+mautRes <- MAUT(dm, scales=c("linear", "linear", "linear", "exponential", "exponential", "exponential", "linear"))
+mautRes$Results
+topRes$Results
 FinalDB <- sensitivity(data=dm,
                        step=0.1,
-                       algs=c("TOPSIS", "MAUT"),
+                       algs="TOPSIS",
                        algParams=list(MAUT=list(scales=list("linear",
                                                             "linear",
                                                             "linear",
                                                             "exponential",
                                                             "exponential",
                                                             "exponential",
-                                                            "linear")))
+                                                            "linear"))),
+                       plotLabels = TRUE
                        #algParams=list(MAUT=list(scales=list("linear", "linear", "exponential")))
                        ) #optional
-
+FinalDB$Plot + xlim(step,(1-step))
 #sensitivity <- function(data=c(), 
 #                        algs=c(),
 #                        algParams=c(),
