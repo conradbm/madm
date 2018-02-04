@@ -1,14 +1,17 @@
-# https://hilaryparker.com/2014/04/29/writing-an-r-package-from-scratch/
 
-# TODO ...
-# UNWRINKLE all parameters and what a user COULD put into it.
-# Allow sensitivty to include window sizes (rather than just [step,1-step]
-# Allow sensitivty to have split percentages
-install.packages('simmer')
-library(simmer)
-version
+install.packages('devtools')
+library(devtools)
+devtools::install_github("klutometis/roxygen")
+library(roxygen2)
+
+setwd("/Users/bmc/Desktop/madm")
+create("madmr")
+setwd("/Users/bmc/Desktop/madm/madmr")
+# make changes
+document()
+
 getwd()
-setwd("C:/Users/1517766115.CIV/Desktop/madm-madmr/Package")
+setwd("/Users/bmc/Desktop/madm/Package")
 source("Functions/FileIO.R")
 source("Functions/Algorithms.R")
 source("Functions/Sensitivity.R")
@@ -24,7 +27,7 @@ mautRes <- MAUT(dm, scales=c("linear", "linear", "linear", "exponential", "expon
 mautRes$Results
 topRes$Results
 FinalDB <- sensitivity(data=dm,
-                       step=0.1,
+                       step=0.01,
                        algs="TOPSIS",
                        algParams=list(MAUT=list(scales=list("linear",
                                                             "linear",
@@ -33,10 +36,11 @@ FinalDB <- sensitivity(data=dm,
                                                             "exponential",
                                                             "exponential",
                                                             "linear"))),
-                       plotLabels = TRUE
+                       plotLabels = TRUE,
+                       window=c(0.1,0.5)
                        #algParams=list(MAUT=list(scales=list("linear", "linear", "exponential")))
                        ) #optional
-FinalDB$Plot + xlim(step,(1-step))
+FinalDB$Plot
 #sensitivity <- function(data=c(), 
 #                        algs=c(),
 #                        algParams=c(),

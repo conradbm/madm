@@ -91,7 +91,7 @@ sensitivity <- function(data=c(),
     if(verbose) cat("default uniform splitting for weights of all non-specified attributes will be applied. The total number of attributes supplied is ", length(names(DM)), " meaning ", length(names(DM))-1, " attributes can acquire the split percentages, therefore " ,1/(length(names(DM))-1),"% will be split amongst each on every step through the sensitivity analysis.","\n")
     
     cat("Default splits assumed.\n")
-    DB_Final <- default_sensitivity(DM, DB, attr, algs, algParams, step, verbose)
+    DB_Final <- default_sensitivity(DM, DB, attr, algs, algParams, step, verbose, window)
     
   }
   else{
@@ -155,7 +155,8 @@ default_sensitivity <- function(DM,
                                 algs,
                                 algParams,
                                 step,
-                                verbose){ 
+                                verbose,
+                                window){ 
   
   
   cat("Default sensitivity beginning. \n")
@@ -163,15 +164,24 @@ default_sensitivity <- function(DM,
   # If no algorithm specified, do all!
   if(length(algs)==0) algs <- c("TOPSIS","MAUT")
   
+  # If no attributes specified, do all!
   if(length(attr)==0) attr <- names(DM)
   
+  # If no window specified, do step!
+  if(length(window) == 2){
+    minStep    <- window[1]
+    maxStep    <- window[2]
+  }
+  else{
+    minStep <- step
+    maxStep <- (1-step)
+  }
   # Constants for DB & calculations
   iterid     <-1
   algid      <-1
   N          <- length(names(DM))
   split_step <- step/(N-1)
-  minStep    <- step
-  maxStep    <- (1-step)
+
 
   # Keep a fresh copy of the DM so as we update we dont lose information
   DMCopy <- DM
