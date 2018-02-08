@@ -1,0 +1,25 @@
+{
+  "name": "madmr",
+  "version": "1.0.0",
+  "description": "A decision analysis library.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/conradbm/madmr.git"
+  },
+  "keywords": [
+    "decision analysis",
+    "theory",
+    "algorithm",
+    "decision making"
+  ],
+  "author": "Blake Conrad",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/conradbm/madmr/issues"
+  },
+  "homepage": "https://github.com/conradbm/madm/blob/madmr/README.md"
+}
