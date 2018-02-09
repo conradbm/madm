@@ -1,0 +1,17 @@
+"","alts","ranks","alg","attr_i","iterid","weight","reportOut"
+"9","Ranch","2","TOPSIS","Sq.Foot",3,0.7,TRUE
+"10","Colonial","1","TOPSIS","Sq.Foot",3,0.7,TRUE
+"11","Reverse Ranch","3","TOPSIS","Sq.Foot",3,0.7,TRUE
+"12","Split Level","4","TOPSIS","Sq.Foot",3,0.7,TRUE
+"37","Ranch","3","MAUT","Sq.Foot",10,0.5,TRUE
+"38","Colonial","1","MAUT","Sq.Foot",10,0.5,TRUE
+"39","Reverse Ranch","2","MAUT","Sq.Foot",10,0.5,TRUE
+"40","Split Level","4","MAUT","Sq.Foot",10,0.5,TRUE
+"49","Ranch","1","MAUT","Preference",13,0.6,TRUE
+"50","Colonial","2","MAUT","Preference",13,0.6,TRUE
+"51","Reverse Ranch","3","MAUT","Preference",13,0.6,TRUE
+"52","Split Level","4","MAUT","Preference",13,0.6,TRUE
+"57","Ranch","3","MAUT","PriceCost",15,0.5,TRUE
+"58","Colonial","2","MAUT","PriceCost",15,0.5,TRUE
+"59","Reverse Ranch","4","MAUT","PriceCost",15,0.5,TRUE
+"60","Split Level","1","MAUT","PriceCost",15,0.5,TRUE
