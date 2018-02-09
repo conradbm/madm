@@ -5,8 +5,6 @@
 #' Import libraries
 #' 
 #' 
-library(ggplot2)
-source("Globals/DB_Globals.R")
 source("Functions/Algorithms.R")
 
 
@@ -30,36 +28,27 @@ source("Functions/Algorithms.R")
 #' @param attr, automatically set to c() will trigger a full sensitivity accross all attributes.
 #'  If a list of valid attribuets are provided, the sensitivity will only trigger these attributes
 #'  in the sensitivity and reflect them only in the returned database.
-#' @param window, double or vector w/ 1 double per attr, specifies how low and high a step size will go for each attribute relative to its 
-#' current weight. if window exceeds 1 attr below0 or above1, the window for that attr will be void and the
-#'  next will be assessed.
 #' @param splitPercentages, automatically set to uniform. This means as you incrementally increase and
 #' decrease an attributes weight value, the percetnage given to each other attribute is equal. An example would
 #' be with 3 attributes, we toggle attribute2 down from 0.3 to 0.2. So we lost 0.1 from attribute2, so we will take
 #' 0.1/(3-1) to give us 0.1/2==0.05, therefore attribuet1 and attribute2 will increase by 0.05 when attribute2 goes down 0.1.
 #' The generalization to this is step/(1-N) in the algorithm. 
 #' @param verbose, default to FALSE. As with most linux command line applications, this will give you a highly detailed picture of what type of iterations are taking place under the hood.
-#' @param algs,vector,
-#' @param algParams, list of named vectors,
-#' @param splitPercentages,matrix of size n-1 by n-1, for each attr how to weigh every other attr from the inc/dec in step. each row should sum to 1.
-#' @param window, double or vector or list, a sigle value represents how low to go for a weight on an attribute being studied, i.e weight-window. likewise for how high, weight+window. for the vector
-#' and list situation it is nothing more than a substitute for the lower and upper bound of default, i.e., (step, 1-step)
-#' @return list
+#' @param algs ...
+#' @param algParams ...
+#' @param splitPercentages
 #' @example FinalDB <- sensitivity(dm, verbose=FALSE)
 #' 
 #' 
 #' Consider adding a StepRange=c(0.1:0.5, by=0.1) to run this for multiple steps
 #' 
 sensitivity <- function(data=c(), 
-                        algs=c("TOPSIS","MAUT"),
+                        algs=c(),
                         algParams=c(),
                         step=0.01,
-                        window=c(), #TODO
                         attr=c(), 
-                        splitPercentages="uniform", #TODO
-                        verbose=FALSE,
-                        plotLabels=FALSE
-                        ){
+                        splitPercentages="uniform", 
+                        verbose=FALSE){
   
   # Disable scientific notation
   #options(scipen=999)
@@ -67,8 +56,8 @@ sensitivity <- function(data=c(),
   #options(scipen=9)
   
   DM <- data
-  plt<-ggplot()
-  retList<-list()
+  FinalDB = data.frame()
+  
   
   if(verbose) cat("step size: ", step, "\n")
   if(verbose) cat("percentageSplit: ", splitPercentages, "\n")
@@ -76,65 +65,34 @@ sensitivity <- function(data=c(),
   if(is.vector(attr) || is.list(attr)){
     if(length(attr) == 0){
       if(verbose) cat("attr left empty will default to examine all attributes.\n")
-      attr<-names(DM)
     }
     else{
       if(verbose) cat("attributes focus: ", attr, "\n")
     }
   }
   
-  #if length(window) == 0 
-  # if vector or list or double
-  # set values for each attr
-  
   if(splitPercentages == "uniform"){
     if(verbose) cat("default uniform splitting for weights of all non-specified attributes will be applied. The total number of attributes supplied is ", length(names(DM)), " meaning ", length(names(DM))-1, " attributes can acquire the split percentages, therefore " ,1/(length(names(DM))-1),"% will be split amongst each on every step through the sensitivity analysis.","\n")
     
     cat("Default splits assumed.\n")
-    DB_Final <- default_sensitivity(DM, DB, attr, algs, algParams, step, verbose, window)
+    FinalDB <- default_sensitivity(DM, DB, attr, algs, algParams, step, verbose)
     
+    #cat("Trimming down data.\n")
+    # Data scrubbing -- remove all invalid rows
+    #trimmedDB <- subset(FinalDB, (FinalDB[,c(1:ncol(DM))] > step & FinalDB[,c(1:ncol(DM))] < (1-step)))
+    #FinalDB <- trimmedDB[complete.cases(trimmedDB),]
+    #cat("Trimming finished.\n")
   }
   else{
     cat("Custom splits were decided at: ", splitPercentages, "\n")
     cat("Non-uniform split percentages is not yet supported in this package. Try a later version for this functionality.\n")
-    DB_Final <- custom_sensitivity(DM, DB, algs, algParams, step, attr, splitPercentages, verbose)
-    # same as default just when increase/decreaseAttribute is called scale by the row in splitPerc that attr_i is in names(dm)
+    FinalDB <- custom_sensitivity(DM, DB, algs, algParams, step, attr, splitPercentages, verbose)
   }
-
-  
-  # Return a ggplot2 object of the database for quick visualization 
-  
-  # Get cases where ranks changed
-  DB_Edges <- DB_Final[DB_Final$reportOut==TRUE,][,c((ncol(DM)+1):ncol(DB_Final))]
-  
-  # Customized plot
-  plt <- ggplot(data=DB_Edges,
-                aes(x=alts, y=weight, color=ranks)) 
-  plt <- plt + theme_bw()
-  plt <- plt + geom_point()
-  plt <- plt + facet_wrap(~alg+attr_i) 
-  plt <- plt + theme(axis.text.x = element_text(angle = 45, hjust = 1))
-  plt <- plt + theme(axis.text.y = element_text(angle = 25))
-  plt <- plt + scale_y_continuous(breaks = round(seq(min(DB_Edges$weight), 1, by = step),1))
-  if(plotLabels) plt <- plt + geom_label(aes(label= round(weight,2)), show.legend = FALSE)
-  plt <- plt + ggtitle("Sensitivity Analysis") + xlab("Alternative") + ylab("Weight")
-  plt <- plt + theme(plot.title = element_text(color="#666666", 
-                                               face="bold",
-                                               size=32, 
-                                               hjust=0)) 
-  plt <- plt + theme(axis.title = element_text(color="#666666",
-                                               size=22)) 
-  plt <- plt + theme(axis.title.x = element_text(face="bold"),
-                     axis.title.y = element_text(face="bold"))
-  
-  # Concise list to capture important elements of analysis
-  retList = list(Results=DB_Final,
-                 EdgeCasesResults=DB_Edges,
-                 Plot=plt)
-  
-  # Return all, a ggplot2 object, and a consolidated summary
-  return(retList)
+  return(FinalDB)
 }
+
+
+
 
 
 
@@ -147,43 +105,32 @@ sensitivity <- function(data=c(),
 #'
 #'
 #'
-#'
-#' @return
 default_sensitivity <- function(DM, 
                                 DB,
                                 attr,
                                 algs,
                                 algParams,
                                 step,
-                                verbose,
-                                window){ 
+                                verbose){ 
   
   
   cat("Default sensitivity beginning. \n")
   
   # If no algorithm specified, do all!
-  if(length(algs)==0) algs <- c("TOPSIS","MAUT")
+  if(length(algs)==0) algs <- c("TOPSIS", "MAUT")
   
-  # If no attributes specified, do all!
   if(length(attr)==0) attr <- names(DM)
   
-  # If no window specified, do step!
-  if(length(window) == 2){
-    minStep    <- window[1]
-    maxStep    <- window[2]
-  }
-  else{
-    minStep <- step
-    maxStep <- (1-step)
-  }
   # Constants for DB & calculations
   iterid     <-1
   algid      <-1
   N          <- length(names(DM))
   split_step <- step/(N-1)
-
-
-  # Keep a fresh copy of the DM so as we update we dont lose information
+  minStep    <- step
+  maxStep    <- (1-step)
+  DB         <- data.frame() # Database to store our results
+  
+  # Keep a fresh copy of the DM from points: attrVal->step
   DMCopy <- DM
   
   for(alg in algs){
@@ -212,8 +159,13 @@ default_sensitivity <- function(DM,
         
         if(verbose) cat("attribute: ", attr_i,"\tvalue: ",DMCopy["weight",attr_i],"\ttype: ",class(DMCopy["weight",attr_i]),"\n")
         if(verbose) cat("attribute: ", "minStep","\tvalue: ", minStep, "\ttype: ",class(minStep),"\n")
-
-        if(DMCopy["weight",attr_i] > minStep){
+        
+        if(DMCopy["weight",attr_i] <= minStep){
+          #cat("Skipping..\t")
+          #cat("\n")
+          #Sys.sleep(5)
+          break
+        }else{
           #cat("Storing..\t")
           #cat("\n")
           #Sys.sleep(1)
@@ -222,12 +174,6 @@ default_sensitivity <- function(DM,
           
           # update iter
           iterid<-iterid+1
-        }else{
-          
-          #cat("Skipping..\t")
-          #cat("\n")
-          #Sys.sleep(5)
-          break
         }
       } #endwhile
       
@@ -251,8 +197,12 @@ default_sensitivity <- function(DM,
         if(verbose) cat("attribute: ", attr_i,"\tvalue: ",DMCopy["weight",attr_i],"\ttype: ",class(DMCopy["weight",attr_i]),"\n")
         if(verbose) cat("attribute: ", "minStep","\tvalue: ", minStep, "\ttype: ",class(minStep),"\n")
         
-        if (DMCopy["weight",attr_i] < maxStep){
-          
+        if (as.numeric(DMCopy["weight",attr_i]) >= as.numeric(maxStep)){
+          #cat("Skipping..\t")
+          #cat("\n")
+          #Sys.sleep(5)
+          break
+        }else{
           #cat("Storing..\t")
           #cat("\n")
           #Sys.sleep(1)
@@ -260,14 +210,6 @@ default_sensitivity <- function(DM,
           
           # update iter
           iterid<-iterid+1
-          
-          
-        }else{
-          
-          #cat("Skipping..\t")
-          #cat("\n")
-          #Sys.sleep(5)
-          break
         }
       } #endwhile
       
@@ -320,8 +262,8 @@ decreaseAttribute <- function(DMCopyj,
   #if(any(as.list(DMCopyj["weight",])) < 0){
   #  sys.sleep(5)
   #}
-
-    return(DMCopyj)
+  
+  return(DMCopyj)
 }
 
 #'
@@ -367,7 +309,7 @@ increaseAttribute <- function(DMCopyk,
 #' @param attr_i, character, a specific column name in the DMCopy which is being sensitively analyzed.
 #' @param iterid, integer, meant to keep track of indices for the DB.
 #' @param verbose, boolean, useful if TRUE for debugging.
-#' @return
+#' 
 #' 
 updateDB <- function(DMCopy, 
                      DB,
@@ -376,7 +318,8 @@ updateDB <- function(DMCopy,
                      attr_i, 
                      iterid,
                      verbose){
-
+  
+  
   # Constants to store
   weights <- as.list(t(DMCopy["weight",]))
   names(weights) <- row.names(t(DMCopy["weight",]))
@@ -400,59 +343,15 @@ updateDB <- function(DMCopy,
   container$alg <- alg
   container$attr_i <- attr_i
   container$iterid <- iterid
-  container$weight <- DMCopy["weight", attr_i]
-  #Beta testing for edge cases
   
-  #print(DB[(nrow(DB)-(length(alts)-1)):(nrow(DB)),]$ranks)
-  #print(container[,]$ranks)
-  #print(any(DB[(nrow(DB)-(length(alts)-1)):(nrow(DB)),"ranks"] != container[, "ranks"]))
-  #Sys.sleep(3)
-  
-  # If the attr just changed, it should not count as an edge case
-
-  # If the ranks changed
-  if(!is.null(DB[(nrow(DB)-(length(alts)-1)):(nrow(DB)),"ranks"])){
-    if (any(DB[(nrow(DB)-(length(alts)-1)):(nrow(DB)),"ranks"] != container[, "ranks"])){
-      
-      # Attr change isn't edge case
-      if(tail(DB,1)$attr_i != attr_i){
-        container$reportOut <- FALSE
-      }
-      # It was the same attribute, and indeed is an edge case
-      else{
-        container$reportOut<-TRUE
-      }
-      
-    }
-    else{
-      container$reportOut <- FALSE
-      #print(DB[(nrow(DB)-(length(alts)-1)):(nrow(DB)),]$ranks)
-      #print(container[,]$ranks)
-      #print(any(DB[(nrow(DB)-(length(alts)-1)):(nrow(DB)),"ranks"] != container[, "ranks"]))
-      #Sys.sleep(15)
-    } 
-  }
-  else{
-    container$reportOut <- FALSE
-  }
-
-  
-  # Update DB
-
+  # Store in the database
   DB <- rbind(DB, container)
   return(DB)
 }
 
 
 
-#' Helper for sensitivity
-#' @param 
-#' @param
-#' @param 
-#' @example
-#' @return
-#' 
-#' 
+# Helper for sensitivity
 custom_sensitivity <- function(DM,
                                DB,
                                step, 

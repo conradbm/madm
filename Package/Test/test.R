@@ -1,46 +1,21 @@
+# https://hilaryparker.com/2014/04/29/writing-an-r-package-from-scratch/
 
-install.packages('devtools')
-library(devtools)
-devtools::install_github("klutometis/roxygen")
-library(roxygen2)
 
-setwd("/Users/bmc/Desktop/madm")
-create("madmr")
-setwd("/Users/bmc/Desktop/madm/madmr")
-# make changes
-document()
-
-getwd()
-setwd("/Users/bmc/Desktop/madm/Package")
+setwd("C:/Users/1517766115.CIV/Desktop/Topics")
 source("Functions/FileIO.R")
 source("Functions/Algorithms.R")
 source("Functions/Sensitivity.R")
-source("Globals/DB_Globals.R")
-#dm <- read.data.matrix("Data/maut_validate_benefits.csv", header=TRUE)
-#dm <- read.data.matrix("Data/topsis_validate_benefits.csv", header=TRUE)
-dm <- read.data.matrix("Data/topsis_validate.csv", header=TRUE)
-dm
-str(dm)
-topRes <- TOPSIS(dm)
-topRes$Results
-mautRes <- MAUT(dm, scales=c("linear", "linear", "linear", "exponential", "exponential", "exponential", "linear"))
-mautRes$Results
-topRes$Results
+dm <- read.data.matrix("Data/maut_validate.csv", header=TRUE)
+
+names(dm)
 FinalDB <- sensitivity(data=dm,
-                       step=0.01,
-                       algs="TOPSIS",
-                       algParams=list(MAUT=list(scales=list("linear",
-                                                            "linear",
-                                                            "linear",
-                                                            "exponential",
-                                                            "exponential",
-                                                            "exponential",
-                                                            "linear"))),
-                       plotLabels = TRUE,
-                       window=c(0.1,0.5)
-                       #algParams=list(MAUT=list(scales=list("linear", "linear", "exponential")))
-                       ) #optional
-FinalDB$Plot
+                       step=.1,
+                       attr="Sq.Foot",
+                       algs=c("TOPSIS", "MAUT"),
+                       algParams=list(MAUT=list(scales=list("linear", "linear", "exponential"))),
+                       verbose=FALSE) #optional
+
+FinalDB
 #sensitivity <- function(data=c(), 
 #                        algs=c(),
 #                        algParams=c(),
@@ -49,12 +24,27 @@ FinalDB$Plot
 #                        splitPercentages="uniform", 
 #                        verbose=FALSE){
 
+FinalDB
+summary(FinalDB)
+FinalDB[nrow(FinalDB),]
+#trimmedDB <- subset(FinalDB, (FinalDB[,c(1:ncol(dm))] > step & FinalDB[,c(1:ncol(dm))] < (1-step)))
+#trimmedDB <- trimmedDB[complete.cases(trimmedDB),]
 
-###############################
-### Example data for docs   ###
-###############################
+#errors in not touching step, but touching (1-step).
+#errors in some rows containing negative numbers.
+
+#nrow(trimmedDB)
+summary(FinalDB)
+nrow(FinalDB)
+#summary(trimmedDB)
+write.csv(FinalDB, "final.csv")
+#write.csv(trimmedDB, "trimmed.csv")
+#FinalDB[89:92,c(1,2,3)] < 0.01
+###
+### Example data if needed.
+###
 #DM <- data.frame(cost=as.numeric(runif(5,100, 200)),                                   #cost attribute, 100-200
-#             productivity=as.numeric(abs(rnorm(5))),                               #benefit attribute,         abs(normalDist)
+#             productivity=as.numeric(abs(rnorm(5))),                               #benefit attribute, abs(normalDist)
 #             location=as.numeric(floor(runif(5, 0, 5))),                           #benefit attribute, 0-5
 #             row.names = sprintf("alternative_%d",seq(1:5))
 #       )
@@ -65,35 +55,23 @@ FinalDB$Plot
 #DM
 ###
 ###
-######################
-### TOPSIS EXAMPLE ###
-######################
+
 #dm <- read.data.matrix("Data/topsis_validate.csv", header=TRUE)
 #topsisRes <-TOPSIS(dm)
 #topsisRes$Results
 
-####################
-### MAUT EXAMPLE ###
-####################
+#topsisRes
+
 #dm <- read.data.matrix("Data/maut_validate.csv", header=TRUE)
 #mautRes <- MAUT(dm)
 #mautRes$Results
-
-###########################
-### SENSITIVITY EXAMPLE ###
-###########################
+#mautRes
 #dm <- read.data.matrix("Data/maut_validate.csv", header=TRUE)
-#FinalDB <- sensitivity(data=dm) #exaustive
+#FinalDB <- sensitivity(data=dm, verbose=TRUE)
 #FinalDB
-#fdb <- sensitivity(data=dm,
-#                   algs=c("MAUT"),
-#                   algsParams=c(list(scales=c("linear","linear","exponential"))),
-#                   verbose=TRUE) #MAUT exuastive only
-#fdb <- sensitivity(data=dm,
-#                   attr=c("Sq.Foot",)
-#                   algs=c("TOPSIS"),
-#                   algsParams=c(), #<- not needed, but kept for clarity
-#                   verbose=TRUE) #MAUT exuastive only
+#fdb <- sensitivity(data=dm, algs=c("MAUT", "ELECTRE"), algsParams=c(list(),list()), verbose=TRUE)
+#fdb <- sensitivity(data=dm, attr=c("x1","x2"),algs=c("TOPSIS","MAUT"), algsParams=c(list(),list(scales=c("linear","logarithmic","exponential"))),verbose=TRUE)
+#write.csv(FinalDB,"test.csv")
 
 
 
